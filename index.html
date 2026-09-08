@@ -131,16 +131,15 @@
   }
 
   function launch() {
-    // pantalla completa
-    const el = document.documentElement;
-    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || function(){}).call(el);
-
-    // activar audio (debe crearse tras un click)
+    // intenta pantalla completa y audio (pueden fallar sin gesto: no importa)
+    try {
+      const el = document.documentElement;
+      (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || function(){}).call(el);
+    } catch(e) {}
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     } catch(e) {}
 
-    // vibración inicial + patrón continuo tipo alarma
     vibrar([0, 300, 100, 300, 100, 500]);
 
     startEl.style.display = 'none';
@@ -183,8 +182,21 @@
     tick();
   }
 
-  document.body.addEventListener('click', launch, { once:true });
-  document.body.addEventListener('touchstart', launch, { once:true });
+  // Arranque automático al abrir (sin click). Sin gesto no hay audio,
+  // pero el conteo y todo lo visual funcionan igual.
+  window.addEventListener('load', () => setTimeout(launch, 400));
+
+  // Si además tocan la pantalla, intenta pantalla completa + audio + vibración.
+  function potenciar() {
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || function(){}).call(el);
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+    }
+    if (navigator.vibrate) navigator.vibrate([0,300,100,300]);
+  }
+  document.body.addEventListener('click', potenciar);
+  document.body.addEventListener('touchstart', potenciar);
 </script>
 </body>
 </html>
