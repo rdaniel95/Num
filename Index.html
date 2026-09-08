@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>601</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    font-family:'Courier New', monospace;
+    cursor:pointer;
+  }
+  #start {
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#0f0;
+    font-size:5rem;
+    text-shadow:0 0 12px #0f0;
+    user-select:none;
+  }
+  #hack {
+    display:none;
+    height:100%;
+    padding:16px;
+    color:#0f0;
+    overflow:hidden;
+    position:relative;
+  }
+  #stream {
+    position:absolute;
+    top:16px; left:16px; right:16px;
+    font-size:0.9rem;
+    line-height:1.25;
+    opacity:0.55;
+    white-space:pre-wrap;
+    word-break:break-all;
+  }
+  #big {
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  #num {
+    font-size:22vw;
+    font-weight:bold;
+    text-shadow:0 0 25px #0f0, 0 0 50px #0f0;
+    letter-spacing:2px;
+  }
+  #label {
+    font-size:1.4rem;
+    letter-spacing:6px;
+    margin-top:10px;
+    text-shadow:0 0 10px #0f0;
+    animation:blink 0.8s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity:0.2; } }
+  #flash {
+    position:absolute; inset:0;
+    background:#0f0; opacity:0;
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+  <div id="start">601 ▄</div>
+
+  <div id="hack">
+    <div id="stream"></div>
+    <div id="big">
+      <div id="num">601</div>
+      <div id="label">ACCESO NO AUTORIZADO</div>
+    </div>
+    <div id="flash"></div>
+  </div>
+
+<script>
+  const startEl = document.getElementById('start');
+  const hackEl  = document.getElementById('hack');
+  const numEl   = document.getElementById('num');
+  const labelEl = document.getElementById('label');
+  const streamEl= document.getElementById('stream');
+  const flashEl = document.getElementById('flash');
+
+  const hexLine = () => {
+    let s = '';
+    const parts = 12 + Math.floor(Math.random()*8);
+    for (let i=0;i<parts;i++){
+      s += Math.floor(Math.random()*0xFFFF).toString(16).padStart(4,'0') + ' ';
+    }
+    return s;
+  };
+
+  const messages = [
+    '> Estableciendo conexion...',
+    '> Bypass firewall: OK',
+    '> Descifrando clave... 128-bit',
+    '> Accediendo al servidor central',
+    '> root@sistema:~# override',
+    '> Inyectando secuencia',
+    '> ADVERTENCIA: intrusion detectada',
+    '> Contador desbloqueado'
+  ];
+
+  // --- audio (pitido generado en el navegador) ---
+  let audioCtx = null;
+  function beep(freq, dur) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.value = 0.06;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    osc.stop(audioCtx.currentTime + dur);
+  }
+
+  function vibrar(patron) {
+    if (navigator.vibrate) navigator.vibrate(patron);
+  }
+
+  function launch() {
+    // pantalla completa
+    const el = document.documentElement;
+    (el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || function(){}).call(el);
+
+    // activar audio (debe crearse tras un click)
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+
+    // vibración inicial + patrón continuo tipo alarma
+    vibrar([0, 300, 100, 300, 100, 500]);
+
+    startEl.style.display = 'none';
+    hackEl.style.display = 'block';
+
+    let n = 601;
+    let msgIdx = 0;
+
+    // flujo de texto tipo terminal
+    const streamTimer = setInterval(() => {
+      let line = Math.random() < 0.25 && msgIdx < messages.length
+        ? messages[msgIdx++]
+        : hexLine();
+      streamEl.textContent = (line + '\n' + streamEl.textContent).split('\n').slice(0, 40).join('\n');
+    }, 60);
+
+    // el contador se acelera
+    let delay = 90;
+    function tick() {
+      numEl.textContent = n;
+      // pitido corto en cada número (tono sube con la velocidad)
+      beep(600 + (n % 400), 0.05);
+      n++;
+      // parpadeo de fondo + alarma ocasional
+      if (n % 50 === 0) {
+        flashEl.style.opacity = 0.35;
+        setTimeout(()=> flashEl.style.opacity = 0, 40);
+        beep(1200, 0.15);      // pitido de alarma agudo
+        vibrar([0, 200, 80, 200]);  // sacudida
+      }
+      // cambia el mensaje inferior
+      if (n % 111 === 0) {
+        const opciones = ['ACCESO NO AUTORIZADO','SISTEMA COMPROMETIDO','NO CIERRES ESTA VENTANA','HACKEANDO...','DESCARGANDO DATOS'];
+        labelEl.textContent = opciones[Math.floor(Math.random()*opciones.length)];
+        vibrar(400);
+      }
+      if (delay > 8) delay -= 0.4; // acelera poco a poco
+      setTimeout(tick, delay);
+    }
+    tick();
+  }
+
+  document.body.addEventListener('click', launch, { once:true });
+  document.body.addEventListener('touchstart', launch, { once:true });
+</script>
+</body>
+</html>
