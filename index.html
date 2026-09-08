@@ -71,13 +71,13 @@
 </style>
 </head>
 <body>
-  <div id="start">601 ▄</div>
+  <div id="start">565 ▄</div>
 
   <div id="hack">
     <div id="stream"></div>
     <div id="big">
-      <div id="num">601</div>
-      <div id="label">ACCESO NO AUTORIZADO</div>
+      <div id="num">565</div>
+      <div id="label">Azteca Guate el mejor canal</div>
     </div>
     <div id="flash"></div>
   </div>
@@ -100,14 +100,14 @@
   };
 
   const messages = [
-    '> Estableciendo conexion...',
-    '> Bypass firewall: OK',
-    '> Descifrando clave... 128-bit',
-    '> Accediendo al servidor central',
-    '> root@sistema:~# override',
-    '> Inyectando secuencia',
-    '> ADVERTENCIA: intrusion detectada',
-    '> Contador desbloqueado'
+    '> Conectando con Azteca Guate...',
+    '> Midiendo audiencia: OK',
+    '> Procesando rating nacional',
+    '> Azteca Guate #1 en audiencia',
+    '> Subiendo el rating...',
+    '> Descargando datos',
+    '> En los primeros lugares',
+    '> El mejor canal confirmado'
   ];
 
   // --- audio (pitido generado en el navegador) ---
@@ -145,7 +145,7 @@
     startEl.style.display = 'none';
     hackEl.style.display = 'block';
 
-    let n = 601;
+    let n = 565;
     let msgIdx = 0;
 
     // flujo de texto tipo terminal
@@ -172,7 +172,7 @@
       }
       // cambia el mensaje inferior
       if (n % 111 === 0) {
-        const opciones = ['ACCESO NO AUTORIZADO','SISTEMA COMPROMETIDO','NO CIERRES ESTA VENTANA','HACKEANDO...','DESCARGANDO DATOS'];
+        const opciones = ['Azteca Guate el mejor canal','En los primeros lugares de audiencia','Descargando datos','Subiendo el rating'];
         labelEl.textContent = opciones[Math.floor(Math.random()*opciones.length)];
         vibrar(400);
       }
